@@ -1,0 +1,157 @@
+[gd_scene load_steps=30 format=3 uid="uid://bl3sat4bdw8k5"]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_lraw1"]
+[ext_resource type="Texture2D" uid="uid://cvmnrhovkkapb" path="res://assets/sprites/slime_3.png" id="1_tbsbk"]
+[ext_resource type="Script" path="res://components/damage_c.gd" id="2_lbsnj"]
+[ext_resource type="Script" path="res://components/health_c.gd" id="3_pgklp"]
+[ext_resource type="PackedScene" uid="uid://df2k4aqhlgjbg" path="res://components/health_uic.tscn" id="4_1wa8f"]
+[ext_resource type="Script" path="res://components/game_actions_c.gd" id="5_ou3i0"]
+[ext_resource type="Script" path="res://resources/game_action.gd" id="6_75tb1"]
+[ext_resource type="Script" path="res://ressource_beans/attack_game_action.gd" id="7_8n8aw"]
+[ext_resource type="Script" path="res://ressource_beans/fail_game_action.gd" id="8_iknlc"]
+[ext_resource type="Script" path="res://components/intent_c.gd" id="9_4k6mc"]
+[ext_resource type="Script" path="res://ressource_beans/heal_game_action.gd" id="9_a7pwc"]
+[ext_resource type="PackedScene" uid="uid://wxit23g2snfw" path="res://components/intent_uic.tscn" id="10_ipuwl"]
+[ext_resource type="Script" path="res://ressource_beans/shield_game_action.gd" id="10_pfyoc"]
+[ext_resource type="Script" path="res://components/reward_c.gd" id="11_f7ntv"]
+[ext_resource type="Script" path="res://components/shield_c.gd" id="14_yymds"]
+[ext_resource type="PackedScene" uid="uid://d3nk0bjfmnjo8" path="res://components/shield_uic.tscn" id="15_sf0sw"]
+
+[sub_resource type="Shader" id="Shader_5dr12"]
+code = "shader_type canvas_item;
+
+uniform vec4 color: source_color;
+uniform float amount: hint_range(0.0, 1.0, 0.01) = 0.5;
+uniform float transparency_threshold: hint_range(0.0, 1.0, 0.01) = 0.01;
+
+void fragment() {
+	vec4 pixel = texture(TEXTURE, UV);
+	if (pixel.a > transparency_threshold) {
+		COLOR = mix(pixel, color, amount);
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bx4o8"]
+shader = SubResource("Shader_5dr12")
+shader_parameter/color = Color(1, 0, 0.0166664, 1)
+shader_parameter/amount = 0.0
+shader_parameter/transparency_threshold = 0.01
+
+[sub_resource type="Resource" id="Resource_c512c"]
+script = ExtResource("7_8n8aw")
+level = 2
+
+[sub_resource type="Resource" id="Resource_h3ehb"]
+script = ExtResource("7_8n8aw")
+level = 3
+
+[sub_resource type="Resource" id="Resource_cvnxw"]
+script = ExtResource("8_iknlc")
+level = 1
+
+[sub_resource type="Resource" id="Resource_v38mu"]
+script = ExtResource("8_iknlc")
+level = 1
+
+[sub_resource type="Resource" id="Resource_x1v4o"]
+script = ExtResource("7_8n8aw")
+level = 3
+
+[sub_resource type="Resource" id="Resource_eixmi"]
+script = ExtResource("9_a7pwc")
+level = 2
+
+[sub_resource type="Resource" id="Resource_5q2t7"]
+script = ExtResource("10_pfyoc")
+level = 2
+
+[sub_resource type="Animation" id="Animation_3vnjn"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_rjig5"]
+resource_name = "damage"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6),
+"transitions": PackedFloat32Array(-2, -2, -2),
+"update": 0,
+"values": [0.0, 1.0, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_7r3sv"]
+resource_name = "died"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fdkp0"]
+_data = {
+"RESET": SubResource("Animation_3vnjn"),
+"damage": SubResource("Animation_rjig5"),
+"died": SubResource("Animation_7r3sv")
+}
+
+[node name="HardSlime" type="Node2D"]
+scale = Vector2(4, 4)
+script = ExtResource("1_lraw1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_bx4o8")
+position = Vector2(0, -8)
+texture = ExtResource("1_tbsbk")
+
+[node name="DamageC" type="Node" parent="."]
+script = ExtResource("2_lbsnj")
+
+[node name="HealthC" type="Node" parent="."]
+script = ExtResource("3_pgklp")
+max_health = 14
+
+[node name="HeathUIC" parent="." instance=ExtResource("4_1wa8f")]
+offset_top = -24.53
+offset_bottom = -20.53
+
+[node name="GameActionsC" type="Node" parent="."]
+script = ExtResource("5_ou3i0")
+actions = Array[ExtResource("6_75tb1")]([SubResource("Resource_c512c"), SubResource("Resource_h3ehb"), SubResource("Resource_cvnxw"), SubResource("Resource_v38mu"), SubResource("Resource_x1v4o"), SubResource("Resource_eixmi"), SubResource("Resource_5q2t7")])
+
+[node name="IntentC" type="Node" parent="."]
+script = ExtResource("9_4k6mc")
+
+[node name="IntentUIC" parent="." instance=ExtResource("10_ipuwl")]
+offset_top = -14.6
+offset_bottom = -10.6
+
+[node name="RewardC" type="Node" parent="."]
+script = ExtResource("11_f7ntv")
+gold = 40
+
+[node name="ShieldC" type="Node" parent="."]
+script = ExtResource("14_yymds")
+
+[node name="ShieldUIC" parent="." instance=ExtResource("15_sf0sw")]
+offset_top = -19.395
+offset_bottom = -15.395
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_fdkp0")
+}
+
+[connection signal="on_damage" from="DamageC" to="." method="_on_damage_c_on_damage"]

@@ -1,0 +1,200 @@
+[gd_scene load_steps=15 format=3 uid="uid://cg516b6n3g5q2"]
+
+[ext_resource type="Texture2D" uid="uid://xlonv4o4io4e" path="res://assets/sprites/player.png" id="1_b4rh7"]
+[ext_resource type="Script" path="res://scenes/player/player.gd" id="1_g4m1g"]
+[ext_resource type="Script" path="res://components/health_c.gd" id="2_genjv"]
+[ext_resource type="PackedScene" uid="uid://df2k4aqhlgjbg" path="res://components/health_uic.tscn" id="3_ejhn8"]
+[ext_resource type="PackedScene" uid="uid://d3nk0bjfmnjo8" path="res://components/shield_uic.tscn" id="4_5b5l3"]
+[ext_resource type="Script" path="res://components/damage_c.gd" id="4_anp1n"]
+[ext_resource type="Script" path="res://components/game_actions_c.gd" id="5_awoci"]
+[ext_resource type="Script" path="res://components/shield_c.gd" id="9_vcfhe"]
+
+[sub_resource type="Shader" id="Shader_tu6h1"]
+code = "shader_type canvas_item;
+
+uniform vec4 color: source_color;
+uniform float amount: hint_range(0.0, 1.0, 0.01) = 0.5;
+uniform float transparency_threshold: hint_range(0.0, 1.0, 0.01) = 0.01;
+
+void fragment() {
+	vec4 pixel = texture(TEXTURE, UV);
+	if (pixel.a > transparency_threshold) {
+		COLOR = mix(pixel, color, amount);
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5gpbg"]
+resource_local_to_scene = true
+shader = SubResource("Shader_tu6h1")
+shader_parameter/color = Color(1, 0, 0.0166664, 1)
+shader_parameter/amount = 0.0
+shader_parameter/transparency_threshold = 0.01
+
+[sub_resource type="Animation" id="Animation_lagf4"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, -8)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_fhbso"]
+resource_name = "dalage"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.6),
+"transitions": PackedFloat32Array(-2, -2, -2),
+"update": 0,
+"values": [0.0, 1.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, -8), Vector2(-1.25, -8.25), Vector2(0, -8)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, -0.174533, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_a8xlc"]
+resource_name = "walk"
+length = 0.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [-0.0872665, 0.0872665]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(-2, -2),
+"update": 0,
+"values": [Vector2(-0.75, -8.25), Vector2(0.75, -8.25)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_muu1g"]
+_data = {
+"RESET": SubResource("Animation_lagf4"),
+"damage": SubResource("Animation_fhbso"),
+"walk": SubResource("Animation_a8xlc")
+}
+
+[node name="Player" type="Node2D" node_paths=PackedStringArray("game_actions_component")]
+scale = Vector2(4, 4)
+script = ExtResource("1_g4m1g")
+game_actions_component = NodePath("GameActionsC")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_5gpbg")
+position = Vector2(0, -8)
+texture = ExtResource("1_b4rh7")
+
+[node name="HealthC" type="Node" parent="."]
+script = ExtResource("2_genjv")
+max_health = 4
+
+[node name="ShieldC" type="Node" parent="."]
+script = ExtResource("9_vcfhe")
+
+[node name="ShieldUIC" parent="." instance=ExtResource("4_5b5l3")]
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = -20.0
+offset_right = 0.0
+offset_bottom = -16.0
+
+[node name="HealthUIC" parent="." instance=ExtResource("3_ejhn8")]
+offset_top = -24.66
+offset_bottom = -20.66
+
+[node name="DamageC" type="Node" parent="."]
+script = ExtResource("4_anp1n")
+
+[node name="GameActionsC" type="Node" parent="."]
+script = ExtResource("5_awoci")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_muu1g")
+}
+
+[node name="WalkSound" type="AudioStreamPlayer" parent="."]
+volume_db = 2.0
+
+[node name="WalkTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.3
+
+[connection signal="on_damage" from="DamageC" to="." method="_on_damage_c_on_damage"]
+[connection signal="timeout" from="WalkTimer" to="." method="_on_walk_timer_timeout"]

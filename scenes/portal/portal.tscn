@@ -1,0 +1,129 @@
+[gd_scene load_steps=10 format=3 uid="uid://r1w3ak6rj4sg"]
+
+[ext_resource type="Script" path="res://scenes/portal/portal.gd" id="1_d8v60"]
+[ext_resource type="Texture2D" uid="uid://dwogox80br2g" path="res://assets/sprites/portal_back.png" id="2_3m075"]
+[ext_resource type="Texture2D" uid="uid://cwv47my538d47" path="res://assets/sprites/portal_color.png" id="3_crhb7"]
+
+[sub_resource type="Curve" id="Curve_2i3qi"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_f4d1b"]
+colors = PackedColorArray(0.1566, 0.081, 0.27, 1, 0.1566, 0.081, 0.27, 0)
+
+[sub_resource type="Shader" id="Shader_h761a"]
+code = "shader_type canvas_item;
+
+uniform float wave_speed : hint_range(0.1, 5.0) = 1.0;
+uniform float wave_intensity : hint_range(0.0, 1.0) = 0.3;
+uniform float wave_frequency : hint_range(1.0, 20.0) = 10.0;
+
+void fragment() {
+    // Coordonnées de texture UV
+    vec2 uv = UV;
+
+    // Appliquer une déformation ondulatoire sur les coordonnées UV
+    float wave = sin(uv.y * wave_frequency + TIME * wave_speed) * wave_intensity;
+    uv.x += wave;
+	
+	// Assurer que les coordonnées UV restent dans des limites valides
+    if (uv.x < 0.0 || uv.x > 1.0) {
+        discard;  // Supprime les pixels en dehors de la texture
+    }
+
+    // Échantillonner la texture avec les coordonnées UV déformées
+    vec4 tex_color = texture(TEXTURE, uv);
+
+    // Appliquer la couleur de la texture au fragment
+    COLOR = tex_color;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ql167"]
+shader = SubResource("Shader_h761a")
+shader_parameter/wave_speed = 1.0
+shader_parameter/wave_intensity = 0.075
+shader_parameter/wave_frequency = 18.112
+
+[sub_resource type="Shader" id="Shader_f1plo"]
+code = "shader_type canvas_item;
+
+uniform float wave_speed : hint_range(0.1, 5.0) = 1.0;
+uniform float wave_intensity : hint_range(0.0, 1.0) = 0.3;
+uniform float wave_frequency : hint_range(1.0, 20.0) = 10.0;
+
+uniform vec4 color: source_color;
+uniform float amount: hint_range(0.0, 1.0, 0.01) = 0.5;
+uniform float transparency_threshold: hint_range(0.0, 1.0, 0.01) = 0.01;
+
+void fragment() {
+    // Coordonnées de texture UV
+    vec2 uv = UV;
+
+    // Appliquer une déformation ondulatoire sur les coordonnées UV
+    float wave = sin(uv.y * wave_frequency + TIME * wave_speed) * wave_intensity;
+    uv.x += wave;
+	
+	// Assurer que les coordonnées UV restent dans des limites valides
+    if (uv.x < 0.0 || uv.x > 1.0) {
+        discard;  // Supprime les pixels en dehors de la texture
+    }
+
+    // Échantillonner la texture avec les coordonnées UV déformées
+    vec4 tex_color = texture(TEXTURE, uv);
+
+    // Appliquer la couleur de la texture au fragment
+	if (tex_color.a > transparency_threshold) {
+		COLOR = mix(tex_color, color, amount);
+	} else {
+		discard;
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qsyfr"]
+resource_local_to_scene = true
+shader = SubResource("Shader_f1plo")
+shader_parameter/wave_speed = 1.0
+shader_parameter/wave_intensity = 0.075
+shader_parameter/wave_frequency = 18.112
+shader_parameter/color = Color(1, 0, 0.0999999, 1)
+shader_parameter/amount = 0.75
+shader_parameter/transparency_threshold = 0.01
+
+[node name="Portal" type="Node2D"]
+z_index = 1
+z_as_relative = false
+scale = Vector2(2, 2)
+script = ExtResource("1_d8v60")
+portal_type = 1
+battle_color = Color(0.785997, 0, 0.208301, 1)
+shop_color = Color(0.400132, 0.214735, 0.11271, 1)
+upgrade_color = Color(0.233153, 0.249119, 0.607695, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+position = Vector2(0, -16)
+amount = 200
+lifetime = 1.5
+emission_shape = 3
+emission_rect_extents = Vector2(5, 10)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 15.0
+angle_min = -90.0
+angle_max = 90.0
+scale_amount_min = 2.0
+scale_amount_max = 8.5
+scale_amount_curve = SubResource("Curve_2i3qi")
+color_ramp = SubResource("Gradient_f4d1b")
+
+[node name="PortalBack" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_ql167")
+position = Vector2(0, -16)
+texture = ExtResource("2_3m075")
+
+[node name="Portal" type="Sprite2D" parent="PortalBack"]
+modulate = Color(0.740846, 6.257e-07, 0.398112, 1)
+material = SubResource("ShaderMaterial_qsyfr")
+texture = ExtResource("3_crhb7")

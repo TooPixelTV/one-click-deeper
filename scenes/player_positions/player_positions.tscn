@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://denp4tlwysdi2"]
+
+[ext_resource type="Script" path="res://scenes/player_positions/player_positions.gd" id="1_iwbo3"]
+
+[node name="PlayerPositions" type="Node"]
+script = ExtResource("1_iwbo3")
+
+[node name="IdlePos" type="Marker2D" parent="."]
+
+[node name="BattlePos" type="Marker2D" parent="."]
+position = Vector2(-80, 0)
+
+[node name="TopPortalPos" type="Marker2D" parent="."]
+position = Vector2(0, -174)
+
+[node name="BottomPortalPos" type="Marker2D" parent="."]
+position = Vector2(0, 174)
+
+[node name="LeftPortalPos" type="Marker2D" parent="."]
+position = Vector2(-170, 0)
+
+[node name="RightPortalPos" type="Marker2D" parent="."]
+position = Vector2(170, 0)

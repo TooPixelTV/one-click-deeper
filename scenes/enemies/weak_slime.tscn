@@ -1,0 +1,134 @@
+[gd_scene load_steps=23 format=3 uid="uid://doda1da8hs7v2"]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_5v6qe"]
+[ext_resource type="Texture2D" uid="uid://c0o01w5q478yx" path="res://assets/sprites/slime_1.png" id="1_xnwac"]
+[ext_resource type="Script" path="res://components/health_c.gd" id="2_3w4ys"]
+[ext_resource type="Script" path="res://components/damage_c.gd" id="2_g4oje"]
+[ext_resource type="PackedScene" uid="uid://df2k4aqhlgjbg" path="res://components/health_uic.tscn" id="2_xdb5e"]
+[ext_resource type="Script" path="res://components/game_actions_c.gd" id="5_aouv1"]
+[ext_resource type="Script" path="res://components/intent_c.gd" id="6_2ied8"]
+[ext_resource type="Script" path="res://resources/game_action.gd" id="6_wu0ea"]
+[ext_resource type="Script" path="res://ressource_beans/attack_game_action.gd" id="7_aj3ym"]
+[ext_resource type="PackedScene" uid="uid://wxit23g2snfw" path="res://components/intent_uic.tscn" id="7_d6qnb"]
+[ext_resource type="Script" path="res://ressource_beans/fail_game_action.gd" id="8_6eemm"]
+[ext_resource type="Script" path="res://components/reward_c.gd" id="11_qp66a"]
+
+[sub_resource type="Shader" id="Shader_ami1v"]
+code = "shader_type canvas_item;
+
+uniform vec4 color: source_color;
+uniform float amount: hint_range(0.0, 1.0, 0.01) = 0.5;
+uniform float transparency_threshold: hint_range(0.0, 1.0, 0.01) = 0.01;
+
+void fragment() {
+	vec4 pixel = texture(TEXTURE, UV);
+	if (pixel.a > transparency_threshold) {
+		COLOR = mix(pixel, color, amount);
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d3ymi"]
+shader = SubResource("Shader_ami1v")
+shader_parameter/color = Color(1, 0, 0.0166664, 1)
+shader_parameter/amount = 0.0
+shader_parameter/transparency_threshold = 0.01
+
+[sub_resource type="Resource" id="Resource_c512c"]
+script = ExtResource("7_aj3ym")
+level = 1
+
+[sub_resource type="Resource" id="Resource_h3ehb"]
+script = ExtResource("7_aj3ym")
+level = 2
+
+[sub_resource type="Resource" id="Resource_cvnxw"]
+script = ExtResource("8_6eemm")
+level = 1
+
+[sub_resource type="Resource" id="Resource_v38mu"]
+script = ExtResource("8_6eemm")
+level = 1
+
+[sub_resource type="Animation" id="Animation_3vnjn"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_rjig5"]
+resource_name = "damage"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:material:shader_parameter/amount")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6),
+"transitions": PackedFloat32Array(-2, -2, -2),
+"update": 0,
+"values": [0.0, 1.0, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_7r3sv"]
+resource_name = "died"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fdkp0"]
+_data = {
+"RESET": SubResource("Animation_3vnjn"),
+"damage": SubResource("Animation_rjig5"),
+"died": SubResource("Animation_7r3sv")
+}
+
+[node name="WeakSlime" type="Node2D"]
+scale = Vector2(4, 4)
+script = ExtResource("1_5v6qe")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_d3ymi")
+position = Vector2(0, -8)
+texture = ExtResource("1_xnwac")
+
+[node name="DamageC" type="Node" parent="."]
+script = ExtResource("2_g4oje")
+
+[node name="HealthC" type="Node" parent="."]
+script = ExtResource("2_3w4ys")
+max_health = 6
+
+[node name="HeathUIC" parent="." instance=ExtResource("2_xdb5e")]
+offset_top = -18.0
+offset_bottom = -14.0
+
+[node name="GameActionsC" type="Node" parent="."]
+script = ExtResource("5_aouv1")
+actions = Array[ExtResource("6_wu0ea")]([SubResource("Resource_c512c"), SubResource("Resource_h3ehb"), SubResource("Resource_cvnxw"), SubResource("Resource_v38mu")])
+
+[node name="IntentC" type="Node" parent="."]
+script = ExtResource("6_2ied8")
+
+[node name="IntentUIC" parent="." instance=ExtResource("7_d6qnb")]
+offset_top = -11.08
+offset_bottom = -7.08
+
+[node name="RewardC" type="Node" parent="."]
+script = ExtResource("11_qp66a")
+gold = 10
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_fdkp0")
+}
+
+[connection signal="on_damage" from="DamageC" to="." method="_on_damage_c_on_damage"]

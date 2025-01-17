@@ -1,0 +1,60 @@
+[gd_scene load_steps=5 format=3 uid="uid://csjhq2n6sqgub"]
+
+[ext_resource type="Script" path="res://scenes/ui/ui.gd" id="1_h0wrh"]
+[ext_resource type="Texture2D" uid="uid://dasqleoy0app5" path="res://assets/sprites/icons/gold.png" id="2_6csnr"]
+[ext_resource type="Texture2D" uid="uid://c2puxdq00ywxx" path="res://assets/sprites/icons/kills.png" id="2_j124h"]
+[ext_resource type="Theme" uid="uid://cfbeauogvefm7" path="res://themes/main_theme.tres" id="3_035mo"]
+
+[node name="UI" type="CanvasLayer"]
+script = ExtResource("1_h0wrh")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Kills" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="KillsIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/Kills"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("2_j124h")
+expand_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Kills"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+
+[node name="KillsValue" type="Label" parent="MarginContainer/VBoxContainer/Kills/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_035mo")
+theme_override_font_sizes/font_size = 25
+text = "0"
+
+[node name="Gold" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GoldIcon" type="TextureRect" parent="MarginContainer/VBoxContainer/Gold"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("2_6csnr")
+expand_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Gold"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+
+[node name="GoldValue" type="Label" parent="MarginContainer/VBoxContainer/Gold/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = ExtResource("3_035mo")
+theme_override_font_sizes/font_size = 25
+text = "0"
