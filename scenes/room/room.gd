@@ -21,7 +21,6 @@ func _ready() -> void:
 	setup_room(RoomType.NAVIGATION)
 
 func setup_room(type: RoomType, with_fade: bool = true):
-	print(type)
 	current_room_type = type
 	
 	if with_fade:
@@ -29,6 +28,7 @@ func setup_room(type: RoomType, with_fade: bool = true):
 		await GameData._fade_transition.fade_complete
 	
 	battle_room.hide()
+	battle_room.reset_battle_room()
 	upgrade_room.hide()
 	shop_room.hide()
 	navigation_room.hide()

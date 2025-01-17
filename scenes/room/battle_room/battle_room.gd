@@ -76,6 +76,8 @@ func _on_game_action_roll_roll_stopped(game_action: GameAction, _index: int) -> 
 		apply_enemy_intent()
 		await get_tree().create_timer(3).timeout
 		new_round()
+	else:
+		reset_battle_room()
 
 func _enemy_died():
 	battle_running = false
@@ -102,7 +104,8 @@ func reset_battle_room():
 	if player_shield_c:
 		player_shield_c.reset_shield()
 	
-	current_enemy.queue_free()
-	current_enemy = null
-	game_action_roll.hide()
+	if current_enemy:
+		current_enemy.queue_free()
+		current_enemy = null
 	game_action_roll.update_game_actions([])
+	game_action_roll.hide()
